@@ -1,0 +1,47 @@
+[
+  {
+    "id": "p1",
+    "name": "Ali AC Services",
+    "type": "AC Technician",
+    "location": "G-13",
+    "distance_km": 2.1,
+    "rating": 4.8,
+    "available": true
+  },
+  {
+    "id": "p2",
+    "name": "Quick Fix AC",
+    "type": "AC Technician",
+    "location": "G-11",
+    "distance_km": 5.5,
+    "rating": 4.5,
+    "available": true
+  },
+  {
+    "id": "p3",
+    "name": "Imran Plumbers",
+    "type": "Plumber",
+    "location": "F-8",
+    "distance_km": 7.2,
+    "rating": 4.6,
+    "available": false
+  },
+  {
+    "id": "p4",
+    "name": "Usman Electrician",
+    "type": "Electrician",
+    "location": "I-10",
+    "distance_km": 8.0,
+    "rating": 4.2,
+    "available": true
+  },
+  {
+    "id": "p5",
+    "name": "Ayesha Beauty Parlor Home Service",
+    "type": "Beautician",
+    "location": "G-13",
+    "distance_km": 1.5,
+    "rating": 4.9,
+    "available": true
+  }
+]
