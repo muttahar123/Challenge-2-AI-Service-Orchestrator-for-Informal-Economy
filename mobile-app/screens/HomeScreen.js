@@ -3,8 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import axios from 'axios';
 import AgentTrace from '../components/AgentTrace';
 
-// Get the correct localhost IP depending on the platform (Android Emulator uses 10.0.2.2)
-const BACKEND_URL = Platform.OS === 'android' ? 'http://192.168.100.109:3000/api/request' : 'http://localhost:3000/api/request';
+const BACKEND_URL = 'http://192.168.100.109:3000/api/request';
 
 export default function HomeScreen({ onRequestProcessed }) {
   const [inputText, setInputText] = useState('Mujhe kal subah G-13 mein AC technician chahiye');
