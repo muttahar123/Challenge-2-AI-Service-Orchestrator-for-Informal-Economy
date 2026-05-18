@@ -4,7 +4,7 @@ import axios from 'axios';
 import AgentTrace from '../components/AgentTrace';
 
 // Get the correct localhost IP depending on the platform (Android Emulator uses 10.0.2.2)
-const BACKEND_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000/api/request' : 'http://localhost:3000/api/request'; 
+const BACKEND_URL = Platform.OS === 'android' ? 'http://192.168.100.109:3000/api/request' : 'http://localhost:3000/api/request';
 
 export default function HomeScreen({ onRequestProcessed }) {
   const [inputText, setInputText] = useState('Mujhe kal subah G-13 mein AC technician chahiye');
@@ -29,7 +29,7 @@ export default function HomeScreen({ onRequestProcessed }) {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
@@ -50,11 +50,11 @@ export default function HomeScreen({ onRequestProcessed }) {
             placeholder="e.g. Plumber needed in F-8 today evening"
             placeholderTextColor="#888"
           />
-          
+
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <TouchableOpacity 
-            style={[styles.button, loading && styles.buttonDisabled]} 
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleSubmit}
             disabled={loading}
           >
@@ -65,7 +65,7 @@ export default function HomeScreen({ onRequestProcessed }) {
             )}
           </TouchableOpacity>
         </View>
-        
+
         {loading && (
           <View style={styles.loadingTraceContainer}>
             <Text style={styles.loadingText}>Agents are reasoning...</Text>
