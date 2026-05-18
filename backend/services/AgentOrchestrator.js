@@ -75,7 +75,7 @@ Do NOT wrap it in markdown block.
 Example: {"service_type": "AC Technician", "location": "G-13", "time": "Tomorrow morning"}
 `;
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
 
@@ -92,22 +92,77 @@ Example: {"service_type": "AC Technician", "location": "G-13", "time": "Tomorrow
         time: parsed.time || "As soon as possible"
       };
     } catch (error) {
-      this.logStep('ERROR', `Intent Extraction failed: ${error.message}. Using mock fallback.`);
-      // Mock Fallback
-      return { serviceType: "AC Technician", location: "G-13", time: "Tomorrow morning" };
+      this.logStep('ERROR', `Intent Extraction failed: ${error.message}. Using local fallback parsing.`);
+      // Smart local fallback - parse the input ourselves
+      return this._localIntentParse(userInput);
     }
   }
 
-  _discoverProviders(intent) {
-    // Basic string matching logic for mock discovery
-    const reqService = intent.serviceType.toLowerCase();
-    const reqLoc = intent.location.toLowerCase();
+  // Smart local fallback parser when Gemini API is unavailable
+  _localIntentParse(userInput) {
+    const input = userInput.toLowerCase();
+    
+    // Service type detection (Using Regex to support word boundaries)
+    const servicePatterns = [
+      { pattern: /\b(washing\s*machine|washer|dryer|dhona|machine)\b/i, service: 'Washing Machine Technician' },
+      { pattern: /\b(ac|air\s*conditioner|cooling|chiller)\b/i, service: 'AC Technician' },
+      { pattern: /\b(plumber|plumbing|nalkay|pipe|pani|leak|leakage)\b/i, service: 'Plumber' },
+      { pattern: /\b(electrician|bijli|wiring|electric|fan|light|board)\b/i, service: 'Electrician' },
+      { pattern: /\b(beautician|beauty|parlor|makeup|facial|salon)\b/i, service: 'Beautician' },
+      { pattern: /\b(tutor|teacher|tuition|padhai|math|science|english)\b/i, service: 'Tutor' },
+      { pattern: /\b(carpenter|lakri|wood|furniture|darwaza|sofa)\b/i, service: 'Carpenter' },
+      { pattern: /\b(painter|paint|rang|paint-shaint)\b/i, service: 'Painter' },
+      { pattern: /\b(mechanic|car|gari|bike|motorcycle|engine)\b/i, service: 'Mechanic' },
+      { pattern: /\b(cleaner|cleaning|safai|jhaadu|poocha)\b/i, service: 'Cleaner' }
+    ];
 
-    return this.providers.filter(p => 
-      p.type.toLowerCase().includes(reqService) || reqService.includes(p.type.toLowerCase())
-    ).filter(p => 
-      p.location.toLowerCase().includes(reqLoc) || reqLoc.includes(p.location.toLowerCase())
-    );
+    let serviceType = 'General Service';
+    for (const item of servicePatterns) {
+      if (item.pattern.test(input)) {
+        serviceType = item.service;
+        break;
+      }
+    }
+
+    // Location detection (Islamabad sectors)
+    const locationMatch = input.match(/[a-z]-\d+|[a-z]\d+|f-\d+|g-\d+|i-\d+|e-\d+|h-\d+/i);
+    const location = locationMatch ? locationMatch[0].toUpperCase() : 'G-13';
+
+    // Time detection
+    let time = 'As soon as possible';
+    if (input.includes('kal') || input.includes('tomorrow')) time = 'Tomorrow';
+    if (input.includes('subah') || input.includes('morning')) time = time === 'Tomorrow' ? 'Tomorrow morning' : 'Morning';
+    if (input.includes('sham') || input.includes('evening')) time = time === 'Tomorrow' ? 'Tomorrow evening' : 'Evening';
+    if (input.includes('abhi') || input.includes('now') || input.includes('urgent')) time = 'Right now';
+    if (input.includes('dopahar') || input.includes('afternoon')) time = time === 'Tomorrow' ? 'Tomorrow afternoon' : 'Afternoon';
+    if (input.includes('raat') || input.includes('night')) time = time === 'Tomorrow' ? 'Tomorrow night' : 'Night';
+    if (input.includes('today') || input.includes('aaj')) time = 'Today';
+
+    return { serviceType, location, time };
+  }
+
+  _discoverProviders(intent) {
+    const reqService = intent.serviceType.toLowerCase();
+    const reqLoc = intent.location.toLowerCase().replace('-', '');
+
+    // First try: match both service type AND location
+    let matches = this.providers.filter(p => {
+      const pType = p.type.toLowerCase();
+      const pLoc = p.location.toLowerCase().replace('-', '');
+      const serviceMatch = pType.includes(reqService) || reqService.includes(pType);
+      const locationMatch = pLoc.includes(reqLoc) || reqLoc.includes(pLoc);
+      return serviceMatch && locationMatch;
+    });
+
+    // If no exact match, try matching just by service type (broader area)
+    if (matches.length === 0) {
+      matches = this.providers.filter(p => {
+        const pType = p.type.toLowerCase();
+        return pType.includes(reqService) || reqService.includes(pType);
+      });
+    }
+
+    return matches;
   }
 
   async _rankProviders(intent, candidates) {
@@ -129,7 +184,7 @@ Return ONLY a valid JSON object with:
 Do NOT wrap it in markdown.
 `;
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
 
@@ -146,11 +201,19 @@ Do NOT wrap it in markdown.
         reasoning: parsed.reasoning || "Closest available provider."
       };
     } catch (error) {
-      this.logStep('ERROR', `Ranking failed: ${error.message}. Using mock fallback.`);
-      const bestCandidate = candidates.find(c => c.available) || candidates[0];
+      this.logStep('ERROR', `Ranking failed: ${error.message}. Using local ranking.`);
+      // Smart local ranking: prefer available + closest + highest rated
+      const available = candidates.filter(c => c.available);
+      const pool = available.length > 0 ? available : candidates;
+      const sorted = pool.sort((a, b) => {
+        const scoreA = a.rating * 2 - a.distance_km;
+        const scoreB = b.rating * 2 - b.distance_km;
+        return scoreB - scoreA;
+      });
+      const best = sorted[0];
       return {
-        recommendedProvider: bestCandidate,
-        reasoning: `Selected ${bestCandidate.name} because they are available and nearby.`
+        recommendedProvider: best,
+        reasoning: `${best.name} was selected as the best match — rated ${best.rating}/5, only ${best.distance_km} km away, and currently available.`
       };
     }
   }
@@ -158,13 +221,26 @@ Do NOT wrap it in markdown.
   _simulateBooking(provider, time) {
     // Simulate updating a mock booking system
     const bookingId = "BKG-" + Math.floor(Math.random() * 10000);
+    const slotTime = this._generateSlotTime(time);
     return {
       status: "Confirmed",
       bookingId: bookingId,
       providerAssigned: provider.name,
       scheduledTime: time,
-      message: `Booking confirmed with ${provider.name} for ${time}.`
+      slotBooked: slotTime,
+      message: `Booking confirmed with ${provider.name} for ${time}. Slot: ${slotTime}.`,
+      confirmationSent: true,
     };
+  }
+
+  _generateSlotTime(time) {
+    const timeLower = (time || '').toLowerCase();
+    if (timeLower.includes('morning') || timeLower.includes('subah')) return '10:00 AM';
+    if (timeLower.includes('afternoon') || timeLower.includes('dopahar')) return '2:00 PM';
+    if (timeLower.includes('evening') || timeLower.includes('sham')) return '5:00 PM';
+    if (timeLower.includes('night') || timeLower.includes('raat')) return '8:00 PM';
+    if (timeLower.includes('now') || timeLower.includes('abhi') || timeLower.includes('urgent')) return 'Next available slot';
+    return '10:00 AM';
   }
 
   _simulateFollowUp(bookingDetails) {
@@ -172,7 +248,8 @@ Do NOT wrap it in markdown.
     return {
       reminderScheduled: "1 hour before appointment",
       statusUpdateMode: "WhatsApp",
-      message: `Reminder scheduled for booking ${bookingDetails.bookingId}. We will notify you when the provider is on the way.`
+      message: `Reminder scheduled for booking ${bookingDetails.bookingId}. We will notify you when the provider is on the way.`,
+      completionSurvey: "Will be sent after service completion",
     };
   }
 

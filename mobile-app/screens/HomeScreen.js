@@ -35,7 +35,7 @@ export default function HomeScreen({ onRequestProcessed }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.title}>Antigravity Service Orchestrator</Text>
+          <Text style={styles.title}> Service Orchestrator</Text>
           <Text style={styles.subtitle}>AI-Powered Informal Economy Matching</Text>
         </View>
 

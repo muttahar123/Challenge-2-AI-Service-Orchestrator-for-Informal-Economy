@@ -1,5 +1,23 @@
 [
   {
+    "id": "p16",
+    "name": "Sajid Washing Machine Specialist",
+    "type": "Washing Machine Technician",
+    "location": "G-13",
+    "distance_km": 1.2,
+    "rating": 4.9,
+    "available": true
+  },
+  {
+    "id": "p17",
+    "name": "Super Fast Washer Repair",
+    "type": "Washing Machine Technician",
+    "location": "F-8",
+    "distance_km": 4.8,
+    "rating": 4.7,
+    "available": true
+  },
+  {
     "id": "p1",
     "name": "Ali AC Services",
     "type": "AC Technician",
@@ -24,7 +42,7 @@
     "location": "F-8",
     "distance_km": 7.2,
     "rating": 4.6,
-    "available": false
+    "available": true
   },
   {
     "id": "p4",
@@ -42,6 +60,96 @@
     "location": "G-13",
     "distance_km": 1.5,
     "rating": 4.9,
+    "available": true
+  },
+  {
+    "id": "p6",
+    "name": "Rashid Plumbing Solutions",
+    "type": "Plumber",
+    "location": "G-13",
+    "distance_km": 1.8,
+    "rating": 4.7,
+    "available": true
+  },
+  {
+    "id": "p7",
+    "name": "Kamran Electricals",
+    "type": "Electrician",
+    "location": "G-13",
+    "distance_km": 2.5,
+    "rating": 4.4,
+    "available": true
+  },
+  {
+    "id": "p8",
+    "name": "Super Cool AC Repair",
+    "type": "AC Technician",
+    "location": "F-8",
+    "distance_km": 6.0,
+    "rating": 4.3,
+    "available": true
+  },
+  {
+    "id": "p9",
+    "name": "Hamza Tutoring Academy",
+    "type": "Tutor",
+    "location": "G-13",
+    "distance_km": 0.8,
+    "rating": 4.9,
+    "available": true
+  },
+  {
+    "id": "p10",
+    "name": "Master Carpenter Shahid",
+    "type": "Carpenter",
+    "location": "I-10",
+    "distance_km": 9.0,
+    "rating": 4.5,
+    "available": true
+  },
+  {
+    "id": "p11",
+    "name": "Faisal Painters",
+    "type": "Painter",
+    "location": "F-8",
+    "distance_km": 7.0,
+    "rating": 4.3,
+    "available": true
+  },
+  {
+    "id": "p12",
+    "name": "Bilal Auto Mechanic",
+    "type": "Mechanic",
+    "location": "I-10",
+    "distance_km": 10.0,
+    "rating": 4.6,
+    "available": true
+  },
+  {
+    "id": "p13",
+    "name": "Clean Home Services",
+    "type": "Cleaner",
+    "location": "G-11",
+    "distance_km": 4.0,
+    "rating": 4.7,
+    "available": true
+  },
+  {
+    "id": "p14",
+    "name": "Nadeem Electrician Pro",
+    "type": "Electrician",
+    "location": "F-8",
+    "distance_km": 6.5,
+    "rating": 4.8,
+    "available": true
+  },
+  {
+    "id": "p15",
+    "name": "Sara's Beauty At Home",
+    "type": "Beautician",
+    "location": "F-8",
+    "distance_km": 5.0,
+    "rating": 4.6,
     "available": true
   }
 ]
