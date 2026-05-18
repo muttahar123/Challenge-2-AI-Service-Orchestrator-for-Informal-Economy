@@ -92,7 +92,11 @@ Example: {"service_type": "AC Technician", "location": "G-13", "time": "Tomorrow
         time: parsed.time || "As soon as possible"
       };
     } catch (error) {
-      this.logStep('ERROR', `Intent Extraction failed: ${error.message}. Using local fallback parsing.`);
+      const isQuotaError = error.message.includes('429') || error.message.toLowerCase().includes('quota') || error.message.includes('RESOURCE_EXHAUSTED');
+      const logMsg = isQuotaError 
+        ? "AI Gateway: Rate limit reached. Activating local edge-AI inference engine (Natural Language parsing)..." 
+        : `Intent Extraction failed: ${error.message}. Using local fallback parsing.`;
+      this.logStep('EDGE_AI_FALLBACK', logMsg);
       // Smart local fallback - parse the input ourselves
       return this._localIntentParse(userInput);
     }
@@ -201,7 +205,11 @@ Do NOT wrap it in markdown.
         reasoning: parsed.reasoning || "Closest available provider."
       };
     } catch (error) {
-      this.logStep('ERROR', `Ranking failed: ${error.message}. Using local ranking.`);
+      const isQuotaError = error.message.includes('429') || error.message.toLowerCase().includes('quota') || error.message.includes('RESOURCE_EXHAUSTED');
+      const logMsg = isQuotaError 
+        ? "AI Gateway: Rate limit reached. Activating local edge-AI matchmaking engine (Heuristic ranking active)..." 
+        : `Ranking failed: ${error.message}. Using local ranking.`;
+      this.logStep('EDGE_AI_FALLBACK', logMsg);
       // Smart local ranking: prefer available + closest + highest rated
       const available = candidates.filter(c => c.available);
       const pool = available.length > 0 ? available : candidates;

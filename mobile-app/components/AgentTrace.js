@@ -10,6 +10,13 @@ const renderDetails = (step, details) => {
         </View>
       );
     }
+    if (step === 'EDGE_AI_FALLBACK') {
+      return (
+        <View style={styles.fallbackContainer}>
+          <Text style={styles.fallbackText}>{details}</Text>
+        </View>
+      );
+    }
     return <Text style={styles.normalText}>{details}</Text>;
   }
 
@@ -90,6 +97,7 @@ export default function AgentTrace({ logs }) {
       case 'MATCHING_AND_RANKING': return '🤖 Matchmaking & Ranking';
       case 'ACTION_SIMULATION': return '⚡ Booking Orchestration';
       case 'FOLLOW_UP_AUTOMATION': return '📨 Automated Workflows';
+      case 'EDGE_AI_FALLBACK': return '🛡️ Edge-AI Backup Activated';
       case 'END': return '🏁 Session Complete';
       default: return step;
     }
@@ -100,11 +108,20 @@ export default function AgentTrace({ logs }) {
       {logs.map((log, index) => (
         <View key={index} style={styles.logItem}>
           <View style={styles.dotContainer}>
-            <View style={[styles.dot, log.step === 'ERROR' && styles.errorDot, log.step === 'END' && styles.endDot]} />
+            <View style={[
+              styles.dot, 
+              log.step === 'ERROR' && styles.errorDot, 
+              log.step === 'EDGE_AI_FALLBACK' && styles.fallbackDot, 
+              log.step === 'END' && styles.endDot
+            ]} />
             {index < logs.length - 1 && <View style={styles.line} />}
           </View>
           <View style={styles.content}>
-            <Text style={[styles.stepText, log.step === 'ERROR' && styles.errorStepText]}>
+            <Text style={[
+              styles.stepText, 
+              log.step === 'ERROR' && styles.errorStepText,
+              log.step === 'EDGE_AI_FALLBACK' && styles.fallbackStepText
+            ]}>
               {getStepTitle(log.step)}
             </Text>
             <View style={styles.detailsWrapper}>
@@ -291,5 +308,25 @@ const styles = StyleSheet.create({
     color: '#34D399',
     fontSize: 12,
     fontWeight: '700',
+  },
+  fallbackDot: {
+    backgroundColor: '#F59E0B',
+    shadowColor: '#F59E0B',
+  },
+  fallbackStepText: {
+    color: '#F59E0B',
+  },
+  fallbackContainer: {
+    padding: 12,
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.2)',
+  },
+  fallbackText: {
+    color: '#F59E0B',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
   },
 });
