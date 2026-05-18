@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Antigravity Orchestrator Backend is running' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
   console.log('Make sure GEMINI_API_KEY is set in your .env file or environment variables.');
 });

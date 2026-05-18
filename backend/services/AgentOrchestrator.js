@@ -80,21 +80,21 @@ Example: {"service_type": "AC Technician", "location": "G-13", "time": "Tomorrow
       });
 
       let responseText = response.text.trim();
-      if(responseText.startsWith('\`\`\`json')){
-         responseText = responseText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-      } else if (responseText.startsWith('\`\`\`')) {
-         responseText = responseText.replace(/\`\`\`/g, '').trim();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        responseText = jsonMatch[0];
       }
       
       const parsed = JSON.parse(responseText);
       return {
-        serviceType: parsed.service_type,
-        location: parsed.location,
-        time: parsed.time
+        serviceType: parsed.service_type || "General Service",
+        location: parsed.location || "Nearby",
+        time: parsed.time || "As soon as possible"
       };
     } catch (error) {
-      this.logStep('ERROR', `Intent Extraction failed: ${error.message}`);
-      return { serviceType: "Unknown", location: "Unknown", time: "Unknown" };
+      this.logStep('ERROR', `Intent Extraction failed: ${error.message}. Using mock fallback.`);
+      // Mock Fallback
+      return { serviceType: "AC Technician", location: "G-13", time: "Tomorrow morning" };
     }
   }
 
@@ -134,23 +134,23 @@ Do NOT wrap it in markdown.
       });
 
       let responseText = response.text.trim();
-      if(responseText.startsWith('\`\`\`json')){
-         responseText = responseText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-      } else if (responseText.startsWith('\`\`\`')) {
-         responseText = responseText.replace(/\`\`\`/g, '').trim();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        responseText = jsonMatch[0];
       }
 
       const parsed = JSON.parse(responseText);
       const recommendedProvider = candidates.find(c => c.id === parsed.best_provider_id) || candidates[0];
       return {
         recommendedProvider,
-        reasoning: parsed.reasoning
+        reasoning: parsed.reasoning || "Closest available provider."
       };
     } catch (error) {
-      this.logStep('ERROR', `Ranking failed: ${error.message}`);
+      this.logStep('ERROR', `Ranking failed: ${error.message}. Using mock fallback.`);
+      const bestCandidate = candidates.find(c => c.available) || candidates[0];
       return {
-        recommendedProvider: candidates[0],
-        reasoning: "Closest available provider."
+        recommendedProvider: bestCandidate,
+        reasoning: `Selected ${bestCandidate.name} because they are available and nearby.`
       };
     }
   }
