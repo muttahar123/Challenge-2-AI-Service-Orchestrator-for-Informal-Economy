@@ -44,3 +44,4 @@ The system is divided into two parts:
 - Provider dataset is a local mocked database (`data/providers.json`).
 - If API Rate limits are encountered for Gemini, the system safely falls back to a simulated scenario to keep the prototype functioning properly.
 - SMS/WhatsApp messaging and Database updates are only "simulated" logs as per the requirement guidelines.
+- This project is supported by Ammara Dawood Team Lead and Muttahar Sheikh.
